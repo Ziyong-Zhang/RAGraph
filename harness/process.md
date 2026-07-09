@@ -10,9 +10,13 @@
 
 - [x] Create `harness/project.md`, `harness/process.md`, `harness/progress.md`, `harness/decision.md`.
 - [x] Create `.clinerules` with strict operational mandates.
-- [ ] Initialize `uv` package manager and `pyproject.toml`.
-- [ ] Create `tests/` directory for TDD.
-- [ ] Set up project directory structure (`backend/`, `frontend/`).
+- [x] Initialize `uv` package manager and `pyproject.toml`.
+- [x] Create `tests/` directory for TDD.
+- [x] Set up project directory structure (`backend/`, `frontend/`, `backend/core/`, `data/raw/`).
+- [x] Add production dependencies (fastapi, uvicorn, pydantic, python-dotenv, streamlit).
+- [x] Add dev dependencies (pytest, pytest-asyncio).
+- [x] Create `.gitignore` and `.env.example`.
+- [x] Create `tests/test_architecture.py` (TDD) — passes.
 
 ## Phase 2: Backend Foundation
 
