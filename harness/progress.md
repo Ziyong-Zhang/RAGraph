@@ -2,17 +2,19 @@
 
 ## Current Status
 
-Phase 3 initiated. Extensible parsers (Strategy Pattern), chunking logic, and GraphState models implemented.
+Phase 3 ongoing. LLM structured extraction and Graph Merging Logic implemented via instructor.
 
 ## Completed
 
-- Added `ebooklib`, `beautifulsoup4`, and `langchain-text-splitters` dependencies.
-- Defined Pydantic models (`Character`, `Relationship`, `GraphState`) in `backend/core/models.py` for entity resolution merging mechanism.
-- Implemented `BaseParser` ABC and `EpubParser` in `backend/core/parsers.py` using the Strategy Pattern (extensible for PDF/TXT).
-- Implemented `chunk_text()` in `backend/core/chunker.py` using LangChain's `RecursiveCharacterTextSplitter`.
-- Applied TDD: created `tests/test_parsers.py` with `test_chunk_text` (overlap behavior) and `test_epub_parser_extract_text` (mocked EPUB extraction).
-- All 5 tests pass across all phases.
+- Added `openai` and `instructor` dependencies.
+- Created `backend/core/extractor.py` with async `extract_entities()` function:
+  - Patches `AsyncOpenAI` with instructor targeting DeepSeek base URL (`api.deepseek.com/v1`).
+  - Uses `instructor.Mode.JSON` for strictly typed JSON outputs via `response_model=GraphState`.
+  - Includes a highly specific system prompt directing the model to merge entities from `current_state` rather than creating duplicates.
+  - API key is received as a parameter (no hardcoded keys).
+- Applied TDD: created `tests/test_extractor.py` with `test_extract_entities_mock` patching instructor's client to return a hardcoded `GraphState`.
+- All 6 tests pass across all phases.
 
 ## Next Action
 
-Implement structured entity extraction via DeepSeek API using instructor and Graph Merging Logic.
+Implement NetworkX graph construction and timeline logic.

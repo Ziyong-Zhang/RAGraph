@@ -14,5 +14,5 @@ class Relationship(BaseModel):
 
 
 class GraphState(BaseModel):
-    known_characters: list[str] = []
+    known_characters: list[Character] = []
     known_relationships: list[Relationship] = []
