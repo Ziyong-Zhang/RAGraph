@@ -36,13 +36,13 @@
 
 ## Phase 4: Frontend and Visualization
 
-- [ ] Build Streamlit app with EPUB upload and processing UI.
-- [ ] Implement character relationship graph visualization (NetworkX + Streamlit).
+- [x] Build Streamlit app with EPUB upload and processing UI.
+- [x] Implement character relationship graph visualization (NetworkX + Streamlit).
 - [ ] Implement timeline visualization.
 - [ ] Implement "anti-spoiler" chat state management.
 - [ ] Build "anti-spoiler" chat interface with correction UI.
 - [ ] Human-in-the-loop correction endpoint and logic.
-- [ ] Connect Streamlit frontend to FastAPI backend via REST.
+- [x] Connect Streamlit frontend to FastAPI backend via REST.
 
 ## Phase 5: GCP Infrastructure and Deployment
 
