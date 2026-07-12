@@ -2,21 +2,16 @@
 
 ## Current Status
 
-Phase 1 completed. Task 001 executed successfully.
+Phase 2 completed. FastAPI skeleton, health check, and Pydantic configuration initialized.
 
 ## Completed
 
-- Created `harness/` directory with context files (`project.md`, `process.md`, `decision.md`, `progress.md`).
-- Created `.clinerules` with strict operational mandates.
-- Initialized `uv` package manager and `pyproject.toml`.
-- Added production dependencies (fastapi, uvicorn, pydantic, python-dotenv, streamlit).
-- Added dev dependencies (pytest, pytest-asyncio).
-- Created decoupled directory structure: `backend/`, `backend/core/`, `frontend/`, `tests/`, `data/raw/`.
-- Created `__init__.py` files in `backend/`, `backend/core/`, and `tests/`.
-- Created `.gitignore` and `.env.example`.
-- Applied TDD: created `tests/test_architecture.py` — test passes.
+- Added `pydantic-settings` and `langsmith` dependencies.
+- Created `backend/core/config.py` with strictly typed `Settings` class (DEEPSEEK_API_KEY required, LangSmith fields optional), lazy-loaded via `@lru_cache get_settings()`.
+- Created `backend/main.py` with FastAPI app and `/health` endpoint returning `{"status": "healthy", "service": "ragraph"}`.
+- Applied TDD: created `tests/test_api.py` (health check assertions) and `tests/test_config.py` (Settings instantiation with mocked env).
+- All 3 tests pass: `test_health_check`, `test_directories_exist`, `test_settings_can_be_instantiated`.
 
 ## Next Action
 
-Phase 2 - Backend Foundation (FastAPI and LangSmith setup).
-</content>
+Phase 3 - Implement EPUB parsing and text chunking logic.

@@ -20,10 +20,10 @@
 
 ## Phase 2: Backend Foundation
 
-- [ ] Implement FastAPI application skeleton with health check endpoint.
-- [ ] Write Pytest test suite for health check endpoint.
-- [ ] Integrate LangSmith for observability and tracing.
-- [ ] Configure environment variable management (`.env`, `settings.py`).
+- [x] Implement FastAPI application skeleton with health check endpoint.
+- [x] Write Pytest test suite for health check endpoint.
+- [x] Integrate LangSmith for observability and tracing.
+- [x] Configure environment variable management (`.env`, `settings.py`).
 
 ## Phase 3: Agentic Core
 
