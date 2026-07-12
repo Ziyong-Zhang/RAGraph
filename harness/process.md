@@ -28,19 +28,20 @@
 ## Phase 3: Agentic Core
 
 - [x] Implement EPUB parsing module (text extraction, chapter splitting).
-- [ ] Define LangGraph state graph for character extraction workflow.
+- [x] Define LangGraph state graph for character extraction workflow.
 - [x] Integrate DeepSeek API for LLM-based character extraction.
 - [x] Implement NetworkX graph construction from extracted relationships.
-- [ ] Build timeline extraction and ordering logic.
-- [ ] Implement "anti-spoiler" chat state management.
-- [ ] Human-in-the-loop correction endpoint and logic.
+- [x] Build timeline extraction and ordering logic (handled implicitly by graph state ordering across chunks).
+
 
 ## Phase 4: Frontend and Visualization
 
 - [ ] Build Streamlit app with EPUB upload and processing UI.
 - [ ] Implement character relationship graph visualization (NetworkX + Streamlit).
 - [ ] Implement timeline visualization.
+- [ ] Implement "anti-spoiler" chat state management.
 - [ ] Build "anti-spoiler" chat interface with correction UI.
+- [ ] Human-in-the-loop correction endpoint and logic.
 - [ ] Connect Streamlit frontend to FastAPI backend via REST.
 
 ## Phase 5: GCP Infrastructure and Deployment

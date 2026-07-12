@@ -1,5 +1,6 @@
 from openai import AsyncOpenAI
 import instructor
+from langsmith import traceable
 
 from backend.core.models import GraphState
 
@@ -16,6 +17,7 @@ EXTRACTOR_SYSTEM_PROMPT = (
     "Return the COMPLETE, updated GraphState containing both the old (merged) and new entities."
 )
 
+@traceable(run_type="llm", name="DeepSeek_Entity_Extraction")
 async def extract_entities(
     text_chunk: str,
     current_state: GraphState,

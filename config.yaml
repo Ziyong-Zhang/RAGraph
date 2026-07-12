@@ -1,0 +1,15 @@
+pipeline:
+  # Chunk size for RecursiveCharacterTextSplitter (in characters)
+  chunk_size: 2000
+
+  # Overlap between consecutive chunks (in characters)
+  chunk_overlap: 200
+
+  # Set to null for unlimited production runs
+  max_chunks_limit: 4
+
+  # Directory containing EPUB book files to process
+  books_dir: "data/raw/books"
+
+  # Directory where processed graph output files are saved
+  output_dir: "data/raw/output"

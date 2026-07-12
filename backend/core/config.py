@@ -1,5 +1,8 @@
 from functools import lru_cache
+from pathlib import Path
 
+import yaml
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,3 +23,24 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+class PipelineConfigModel(BaseModel):
+    chunk_size: int = 2000
+    chunk_overlap: int = 200
+    max_chunks_limit: int | None = None
+    books_dir: str = "data/raw/books"
+    output_dir: str = "data/raw/output"
+
+
+class PipelineConfig(BaseModel):
+    pipeline: PipelineConfigModel
+
+
+@lru_cache
+def get_pipeline_config() -> PipelineConfigModel:
+    config_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"
+    with open(config_path, "r") as f:
+        data = yaml.safe_load(f)
+    parsed = PipelineConfig(**data)
+    return parsed.pipeline
