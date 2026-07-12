@@ -30,7 +30,7 @@
 - [x] Implement EPUB parsing module (text extraction, chapter splitting).
 - [ ] Define LangGraph state graph for character extraction workflow.
 - [x] Integrate DeepSeek API for LLM-based character extraction.
-- [ ] Implement NetworkX graph construction from extracted relationships.
+- [x] Implement NetworkX graph construction from extracted relationships.
 - [ ] Build timeline extraction and ordering logic.
 - [ ] Implement "anti-spoiler" chat state management.
 - [ ] Human-in-the-loop correction endpoint and logic.
