@@ -2,16 +2,17 @@
 
 ## Current Status
 
-Phase 2 completed. FastAPI skeleton, health check, and Pydantic configuration initialized.
+Phase 3 initiated. Extensible parsers (Strategy Pattern), chunking logic, and GraphState models implemented.
 
 ## Completed
 
-- Added `pydantic-settings` and `langsmith` dependencies.
-- Created `backend/core/config.py` with strictly typed `Settings` class (DEEPSEEK_API_KEY required, LangSmith fields optional), lazy-loaded via `@lru_cache get_settings()`.
-- Created `backend/main.py` with FastAPI app and `/health` endpoint returning `{"status": "healthy", "service": "ragraph"}`.
-- Applied TDD: created `tests/test_api.py` (health check assertions) and `tests/test_config.py` (Settings instantiation with mocked env).
-- All 3 tests pass: `test_health_check`, `test_directories_exist`, `test_settings_can_be_instantiated`.
+- Added `ebooklib`, `beautifulsoup4`, and `langchain-text-splitters` dependencies.
+- Defined Pydantic models (`Character`, `Relationship`, `GraphState`) in `backend/core/models.py` for entity resolution merging mechanism.
+- Implemented `BaseParser` ABC and `EpubParser` in `backend/core/parsers.py` using the Strategy Pattern (extensible for PDF/TXT).
+- Implemented `chunk_text()` in `backend/core/chunker.py` using LangChain's `RecursiveCharacterTextSplitter`.
+- Applied TDD: created `tests/test_parsers.py` with `test_chunk_text` (overlap behavior) and `test_epub_parser_extract_text` (mocked EPUB extraction).
+- All 5 tests pass across all phases.
 
 ## Next Action
 
-Phase 3 - Implement EPUB parsing and text chunking logic.
+Implement structured entity extraction via DeepSeek API using instructor and Graph Merging Logic.
