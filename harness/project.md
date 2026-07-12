@@ -19,6 +19,7 @@ Build "RAGraph", a production-grade AI application that:
 | Graph Analysis | NetworkX                                             |
 | Observability  | LangSmith                                            |
 | Testing        | Pytest                                               |
+| Graph Visualization | Cytoscape.js (via Streamlit HTML component)       |
 | Container      | Docker                                               |
 | Infrastructure | Terraform                                            |
 | Deployment     | GCP Cloud Run                                        |
@@ -47,6 +48,7 @@ Build "RAGraph", a production-grade AI application that:
 | Instructor + OpenAI SDK  | Patches the DeepSeek async client to enforce structured JSON outputs via Pydantic models. |
 | DeepSeek API             | LLM backend for entity extraction; receives text chunks + rolling state.        |
 | NetworkX                 | Builds a `MultiDiGraph` from extracted entities; supports multi-edges with weight accumulation. Serializes to/from GraphML. |
+| Cytoscape.js             | Renders interactive, force-directed (cose layout) knowledge graphs directly in the browser using JSON data provided by the backend. |
 | Pytest                   | TDD test framework; all modules are tested with mocked external dependencies.   |
 
 ### Data Flow
@@ -62,6 +64,7 @@ flowchart LR
     G --> H[Rolling State Merge]
     H -- Next chunk --> F
     H --> I[NetworkX MultiDiGraph]
-    I --> J[GraphML Serialization]
-    J --> K[Visualization & Query]
+    I --> J[GraphML & Cytoscape JSON Export]
+    J --> K[FastAPI REST Endpoint]
+    K --> L[Streamlit + Cytoscape.js UI]
 ```

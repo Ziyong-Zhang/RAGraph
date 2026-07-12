@@ -25,3 +25,21 @@
 - **Date:** 2026-07-12
 - **Context:** Relationships between characters can be mentioned multiple times across different chapters with the same nature (e.g., "friend"). A simple undirected graph or DiGraph loses this frequency information.
 - **Decision:** Use `networkx.MultiDiGraph` to allow multiple edges between the same two nodes. Edges sharing the same (source, target, nature) tuple are collapsed with an accumulated `weight` attribute. This preserves relationship multiplicity for downstream analytics (e.g., link strength in visualizations).
+
+### 5. Dual-Configuration Pattern (YAML + .env)
+
+- **Date:** 2026-07-12
+- **Context:** Mixing runtime secrets (API keys) and pipeline hyperparameters (chunk size, limits) in a single `.env` file limits reproducibility and version control.
+- **Decision:** Implement a dual-configuration architecture. Use `.env` exclusively for secrets (excluded from Git). Use a version-controlled `config.yaml` for pipeline hyperparameters, parsed via a Pydantic `PipelineConfig` model.
+
+### 6. Frontend Graph Rendering via Cytoscape JSON
+
+- **Date:** 2026-07-12
+- **Context:** While GraphML is standard for offline analysis (e.g., Gephi), it is not natively suited for interactive web visualization in a Streamlit/FastAPI architecture.
+- **Decision:** Decouple graph construction from visualization by implementing an exporter that converts the NetworkX `MultiDiGraph` into strict Cytoscape.js JSON format. FastAPI serves this JSON, and Streamlit renders it using `st.components.v1.html`, ensuring a lightweight, interactive frontend.
+
+### 7. Explicit Environment Variable Sync for Observability
+
+- **Date:** 2026-07-12
+- **Context:** `pydantic-settings` loads configurations into memory, but LangChain/LangSmith SDKs strictly read from `os.environ` during initialization, causing tracing to silently fail.
+- **Decision:** Explicitly synchronize LangSmith variables from the Pydantic settings object back into `os.environ` at the application entry points (`run_integration.py` and `main.py`) before importing any LangChain modules.
