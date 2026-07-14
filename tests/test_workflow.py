@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -16,23 +16,37 @@ async def test_workflow_loops_and_finalizes():
         ],
     )
 
-    # Start with filepath + api_key; initialize_document will produce 2 chunks
+    # Build 2 chunks both from chapter 1
+    chapter_chunks = [("chunk_a", 1), ("chunk_b", 1)]
+
     initial: PipelineState = {
         "filepath": "/fake/book.epub",
-        "text_chunks": [],
+        "chapter_chunks": [],
         "current_chunk_index": 0,
         "graph_memory": GraphState(),
-        "output_graph_path": "/fake/output.graphml",
+        "output_base_path": "/fake/output/test_book",
         "api_key": "sk-test",
         "max_chunks": None,
     }
 
     with (
-        patch("backend.core.workflow.EpubParser.extract_text", return_value="chap1 chap2"),
-        patch("backend.core.workflow.chunk_text", return_value=["chunk_a", "chunk_b"]),
-        patch("backend.core.workflow.extract_entities", new_callable=AsyncMock, return_value=dummy_state),
+        patch(
+            "backend.core.workflow.EpubParser.extract_chapter_texts",
+            return_value=["chap1 content"],
+        ),
+        patch(
+            "backend.core.workflow.chunk_chapter_texts",
+            return_value=chapter_chunks,
+        ),
+        patch(
+            "backend.core.workflow.extract_entities",
+            new_callable=AsyncMock,
+            return_value=dummy_state,
+        ),
         patch("backend.core.workflow.build_networkx_graph"),
         patch("backend.core.workflow.save_graph"),
+        patch("backend.core.workflow.export_to_cytoscape_json", return_value={"nodes": [], "edges": []}),
+        patch("builtins.open", new_callable=MagicMock),
     ):
         result = await ragraph_app.ainvoke(initial)
 

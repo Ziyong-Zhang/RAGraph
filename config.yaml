@@ -6,7 +6,7 @@ pipeline:
   chunk_overlap: 200
 
   # Set to null for unlimited production runs
-  max_chunks_limit: 4
+  max_chunks_limit: 6
 
   # Directory containing EPUB book files to process
   books_dir: "data/raw/books"

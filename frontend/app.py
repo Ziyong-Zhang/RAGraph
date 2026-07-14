@@ -31,35 +31,80 @@ else:
 
 st.session_state["selected_stem"] = selected_stem
 
-if st.sidebar.button("Load Graph", type="primary"):
-    if not selected_stem:
-        st.warning("Please enter or select a book stem.")
+# ---- Chapter Timeline (only when a book is selected) ----
+chapter_indices = []
+if selected_stem:
+    try:
+        resp_meta = requests.get(
+            f"http://localhost:8000/api/v1/graph/{selected_stem}/metadata",
+            timeout=5,
+        )
+        if resp_meta.status_code == 200:
+            meta = resp_meta.json()
+            chapter_indices = meta.get("available_chapters", [])
+    except requests.exceptions.ConnectionError:
+        pass
+
+if chapter_indices:
+    default_chapter = chapter_indices[-1]
+    selected_chapter = st.sidebar.select_slider(
+        "Chapter Timeline",
+        options=chapter_indices,
+        value=default_chapter,
+        help="Drag to view the character relationship graph at the end of a specific chapter.",
+    )
+    st.session_state["selected_chapter"] = selected_chapter
+else:
+    st.session_state["selected_chapter"] = None
+
+
+# ---- Cached Graph Fetcher ----
+@st.cache_data
+def fetch_graph(book_stem: str, chapter_index: int | None) -> dict | None:
+    """Fetch graph data from backend. Cached to avoid duplicate requests."""
+    base_url = f"http://localhost:8000/api/v1/graph/{book_stem}"
+    params = {"chapter_index": chapter_index} if chapter_index is not None else {}
+    try:
+        resp = requests.get(base_url, params=params, timeout=10)
+    except requests.exceptions.ConnectionError:
+        st.warning("Cannot connect to backend. Is the FastAPI server running on port 8000?")
         st.stop()
+        return None
 
-    backend_url = f"http://localhost:8000/api/v1/graph/{selected_stem}"
+    if resp.status_code == 404:
+        st.warning(
+            "Graph data not found. Please process the EPUB file first by running:\n\n"
+            "`uv run python scripts/run_integration.py`\n\n"
+            "Then reload this page."
+        )
+        st.stop()
+        return None
 
-    with st.spinner("Fetching graph data from backend..."):
-        try:
-            resp = requests.get(backend_url, timeout=10)
-        except requests.exceptions.ConnectionError:
-            st.warning("Cannot connect to backend. Is the FastAPI server running on port 8000?")
-            st.stop()
+    if resp.status_code != 200:
+        st.error(f"Backend returned status {resp.status_code}: {resp.text}")
+        st.stop()
+        return None
 
-        if resp.status_code == 404:
-            st.warning(
-                "Graph data not found. Please process the EPUB file first by running:\n\n"
-                "`uv run python scripts/run_integration.py`\n\n"
-                "Then reload this page."
-            )
-            st.stop()
+    return resp.json()
 
-        if resp.status_code != 200:
-            st.error(f"Backend returned status {resp.status_code}: {resp.text}")
-            st.stop()
 
-        data = resp.json()
+# ---- Auto-update graph on slider change (no button needed) ----
+book_stem = st.session_state.get("selected_stem")
+chapter = st.session_state.get("selected_chapter")
+
+if book_stem and chapter is not None:
+    data = fetch_graph(book_stem, chapter)
+    if data:
         st.session_state["graph_data"] = data
-        st.success(f"Graph loaded: {len(data.get('nodes', []))} nodes, {len(data.get('edges', []))} edges")
+        st.sidebar.success(f"Loaded: {len(data.get('nodes', []))} nodes, {len(data.get('edges', []))} edges")
+elif book_stem and not chapter_indices:
+    # No chapters — load final graph
+    data = fetch_graph(book_stem, None)
+    if data:
+        st.session_state["graph_data"] = data
+elif not book_stem:
+    if "graph_data" in st.session_state:
+        del st.session_state["graph_data"]
 
 # ---- Render Graph ----
 if "graph_data" in st.session_state and st.session_state["graph_data"]:
@@ -182,7 +227,6 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
                 infoPanel.style.display = 'block';
             }}
 
-            // Tap on a node: show details
             cy.on('tap', 'node', function(evt) {{
                 var node = evt.target;
                 var name = node.data('label') || node.data('id');
@@ -203,7 +247,6 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
                 );
             }});
 
-            // Tap on an edge: show relationship details
             cy.on('tap', 'edge', function(evt) {{
                 var edge = evt.target;
                 var source = edge.data('source');
@@ -220,7 +263,6 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
                 );
             }});
 
-            // Tap on background: hide panel
             cy.on('tap', function(evt) {{
                 if (evt.target === cy) {{
                     infoPanel.style.display = 'none';
@@ -236,4 +278,4 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
     with st.expander("Show raw JSON data"):
         st.json(st.session_state["graph_data"])
 else:
-    st.info("Select a book stem in the sidebar and click 'Load Graph' to visualize character relationships.")
+    st.info("Select a book stem in the sidebar and drag the chapter slider to visualize character relationships.")

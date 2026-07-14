@@ -38,7 +38,7 @@
 
 - [x] Build Streamlit app with EPUB upload and processing UI.
 - [x] Implement character relationship graph visualization (NetworkX + Streamlit).
-- [ ] Implement timeline visualization.
+- [x] Implement timeline visualization.
 - [ ] Implement "anti-spoiler" chat state management.
 - [ ] Build "anti-spoiler" chat interface with correction UI.
 - [ ] Human-in-the-loop correction endpoint and logic.

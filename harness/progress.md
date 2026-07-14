@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Documentation fully synced with Phase 4 architecture. Ready to proceed with Anti-spoiler Chat.
+Chapter-level timeline and dynamic graph snapshotting implemented. Ready for Anti-spoiler Chat UI.
 
 ## Completed
 
@@ -25,11 +25,21 @@ Documentation fully synced with Phase 4 architecture. Ready to proceed with Anti
 - Added `GET /api/v1/graphs` endpoint listing available book stems from processed JSON files.
 - Created `frontend/app.py` — Streamlit UI with sidebar book stem input, Cytoscape.js rendering via `st.components.v1.html`.
 - Refactored `frontend/app.py`: dynamic `st.selectbox` populated from `/api/v1/graphs` endpoint (falls back to text_input if empty).
-- Enhanced Cytoscape layout with `cose` algorithm parameters: `idealEdgeLength: 100`, `nodeRepulsion: 400000`, `componentSpacing: 100`, `edgeElasticity: 100` for reduced node overlap.
-- Added floating `#info-panel` with interactive event listeners: tap node shows aliases/description, tap edge shows source/target/nature/weight, tap background hides panel. Gracefully handles missing attributes with italic "(none)" placeholder.
+- Enhanced Cytoscape layout with `cose` algorithm parameters.
+- Added floating `#info-panel` with interactive event listeners.
 - Created `README_RUN.md` with two-terminal run instructions.
-- Updated `tests/test_api.py` with `test_graphs_list_empty` (mocked nonexistent output dir).
-- All 12 tests pass across all phases.
+- Updated `tests/test_api.py` with `test_graphs_list_empty`.
+- **Chapter-Level Timeline Implementation:**
+  - Updated `backend/core/parsers.py`: Added `extract_chapter_texts()` method returning plain text per EPUB document item (chapter).
+  - Updated `backend/core/chunker.py`: Added `chunk_chapter_texts()` returning `list[tuple[str, int]]` — each chunk tagged with its source chapter index (1-based).
+  - Updated `backend/core/workflow.py`: Changed `PipelineState` to use `chapter_chunks` (list of text+chapter tuples) and `output_base_path`. Implemented Continuous Chapter Overwrite — each chunk snapshot saves `{base}_chapter_{N}.json`. Finalize saves both GraphML and `{base}_final.json`.
+  - Updated `scripts/run_integration.py`: Uses new `PipelineState` fields (`chapter_chunks`, `output_base_path`).
+  - Added `GET /api/v1/graph/{book_stem}/metadata` endpoint — scans output dir for `{book_stem}_chapter_*.json` files, returns `{book_stem, available_chapters, max_chapter}`.
+  - Updated `GET /api/v1/graph/{book_stem}` with optional `?chapter_index=N` query param — loads chapter-specific snapshot or falls back to `_final.json`.
+  - Updated `GET /api/v1/graphs` to filter out `_chapter_X` and `_final` suffixed files from the selection dropdown.
+  - Updated `frontend/app.py`: Fetches chapter metadata on book selection. Renders `st.select_slider` in the sidebar for chapter timeline. Appends `?chapter_index=N` to graph fetch URL.
+- Applied TDD: created `tests/test_timeline.py` with 5 tests: metadata endpoint (with and without chapters), chapter-indexed graph fetch, invalid chapter 404, graphs list exclusion of chapter suffixes.
+- All 17 tests pass across all phases.
 
 ## Next Action
 
