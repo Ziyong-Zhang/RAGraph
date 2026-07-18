@@ -41,6 +41,16 @@ Chapter-level timeline and dynamic graph snapshotting implemented. Ready for Ant
 - Applied TDD: created `tests/test_timeline.py` with 5 tests: metadata endpoint (with and without chapters), chapter-indexed graph fetch, invalid chapter 404, graphs list exclusion of chapter suffixes.
 - All 17 tests pass across all phases.
 
+- **Anti-Spoiler Chat Frontend:**
+  - Initialized `st.session_state.messages`, `current_book`, and `current_chapter` tracking variables.
+  - Context switching logic: when book or chapter changes, chat history is cleared and tracking variables updated — prevents leaking future context during time-travel.
+  - Rendered `st.divider()` + `st.subheader("Detective Assistant")` below the graph visualization.
+  - Iterates over `st.session_state.messages` with `st.chat_message()` bubbles.
+  - `st.chat_input("Ask a question about the current case...")` captures user prompts.
+  - On submission: appends user message, shows loading spinner, sends `POST /api/v1/chat` with `{book_stem, chapter_index, messages}` payload, appends and renders assistant response.
+  - Error handling: `try...except requests.exceptions.RequestException` catches connection failures and displays `st.error()` — app remains responsive.
+  - No LLM logic in frontend; purely a view layer delegating to FastAPI.
+
 ## Next Action
 
-Implement LLM Chat interaction UI and state management.
+Human-in-the-loop correction endpoint and logic.

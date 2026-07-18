@@ -33,18 +33,23 @@
 - [x] Implement NetworkX graph construction from extracted relationships.
 - [x] Build timeline extraction and ordering logic (handled implicitly by graph state ordering across chunks).
 
-
 ## Phase 4: Frontend and Visualization
 
 - [x] Build Streamlit app with EPUB upload and processing UI.
 - [x] Implement character relationship graph visualization (NetworkX + Streamlit).
 - [x] Implement timeline visualization.
-- [ ] Implement "anti-spoiler" chat state management.
-- [ ] Build "anti-spoiler" chat interface with correction UI.
-- [ ] Human-in-the-loop correction endpoint and logic.
+- [x] Implement "anti-spoiler" chat state management.
+- [x] Build "anti-spoiler" chat interface.
+- [ ] Build Human-in-the-Loop (HITL) interactive correction UI inside the graph info panel.
 - [x] Connect Streamlit frontend to FastAPI backend via REST.
 
-## Phase 5: GCP Infrastructure and Deployment
+## Phase 5: Human-In-The-Loop (HITL) Correction
+
+- [ ] Implement backend REST endpoints for node merging and edge deletion.
+- [ ] Implement graph state reloading and JSON overwrite logic upon manual correction.
+- [ ] Connect Streamlit UI buttons to correction endpoints.
+
+## Phase 6: GCP Infrastructure and Deployment
 
 - [ ] Write Dockerfile for multi-stage container build.
 - [ ] Write Terraform configuration for GCP Cloud Run deployment.

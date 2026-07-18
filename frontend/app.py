@@ -6,6 +6,14 @@ import requests
 
 st.set_page_config(layout="wide", page_title="RAGraph")
 
+# ---- Initialize Chat Session State ----
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "current_book" not in st.session_state:
+    st.session_state.current_book = None
+if "current_chapter" not in st.session_state:
+    st.session_state.current_chapter = None
+
 st.title("RAGraph - Character Relationship Visualizer")
 
 # ---- Sidebar ----
@@ -62,6 +70,23 @@ else:
     st.session_state["selected_chapter"] = None
 
 
+# ---- Context Switching: Clear chat when book or chapter changes ----
+book_stem = st.session_state.get("selected_stem")
+chapter = st.session_state.get("selected_chapter")
+
+if book_stem and chapter is not None:
+    if (book_stem != st.session_state.current_book or
+            chapter != st.session_state.current_chapter):
+        st.session_state.messages = []
+        st.session_state.current_book = book_stem
+        st.session_state.current_chapter = chapter
+elif book_stem and not chapter_indices:
+    if book_stem != st.session_state.current_book:
+        st.session_state.messages = []
+        st.session_state.current_book = book_stem
+        st.session_state.current_chapter = None
+
+
 # ---- Cached Graph Fetcher ----
 @st.cache_data
 def fetch_graph(book_stem: str, chapter_index: int | None) -> dict | None:
@@ -98,9 +123,6 @@ def fetch_graph(book_stem: str, chapter_index: int | None) -> dict | None:
 
 
 # ---- Auto-update graph on slider change (no button needed) ----
-book_stem = st.session_state.get("selected_stem")
-chapter = st.session_state.get("selected_chapter")
-
 if book_stem and chapter is not None:
     data = fetch_graph(book_stem, chapter)
     if data:
@@ -117,8 +139,6 @@ elif not book_stem:
 
 # ---- Render Graph ----
 if "graph_data" in st.session_state and st.session_state["graph_data"]:
-    # Use json.dumps for safe JavaScript object literal injection
-    # This guarantees any apostrophe or special char is safely escaped
     safe_json = json.dumps(st.session_state["graph_data"])
 
     cytoscape_html = f"""
@@ -286,3 +306,43 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
         st.json(st.session_state["graph_data"])
 else:
     st.info("Select a book stem in the sidebar and drag the chapter slider to visualize character relationships.")
+
+# ---- Chat Interface ----
+st.divider()
+chat_header = st.subheader("Detective Assistant")
+
+# Render chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Chat input
+if prompt := st.chat_input("Ask a question about the current case..."):
+    # Append and display user message
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.spinner("Investigating..."):
+        try:
+            payload = {
+                "book_stem": book_stem,
+                "chapter_index": chapter,
+                "messages": st.session_state.messages,
+            }
+            resp = requests.post(
+                "http://localhost:8000/api/v1/chat",
+                json=payload,
+                timeout=30,
+            )
+
+            if resp.status_code == 200:
+                answer = resp.json().get("answer", "")
+                st.session_state.messages.append({"role": "assistant", "content": answer})
+                with st.chat_message("assistant"):
+                    st.markdown(answer)
+            else:
+                st.error(f"Backend returned status {resp.status_code}: {resp.text}")
+
+        except requests.exceptions.RequestException as e:
+            st.error(f"Failed to connect to the detective assistant. Is the backend running? Error: {e}")

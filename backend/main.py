@@ -1,12 +1,17 @@
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+# Initialize observability (LangSmith) BEFORE any LangChain/LLM imports.
+from backend.core.config import get_settings
+get_settings()
+
 from backend.core.chat import generate_chat_response
-from backend.core.config import get_pipeline_config, get_settings
+from backend.core.config import get_pipeline_config
 from backend.core.models import ChatRequest, ChatResponse
 
 app = FastAPI(title="RAGraph")

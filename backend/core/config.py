@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -20,9 +21,27 @@ class Settings(BaseSettings):
     )
 
 
+def init_observability(settings: Settings) -> None:
+    """Synchronize LangSmith environment variables from Settings to os.environ.
+
+    LangChain and LangSmith SDKs read configuration directly from os.environ
+    at import time. pydantic-settings loads values into memory, but they are
+    not propagated to os.environ. This function bridges that gap.
+    Call early before any LangChain imports.
+    """
+    if settings.LANGCHAIN_TRACING_V2:
+        os.environ.setdefault("LANGCHAIN_TRACING_V2", "true")
+    if settings.LANGCHAIN_API_KEY:
+        os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
+    if settings.LANGCHAIN_PROJECT:
+        os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
+
+
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
+    init_observability(settings)
+    return settings
 
 
 class PipelineConfigModel(BaseModel):
