@@ -43,3 +43,9 @@
 - **Date:** 2026-07-12
 - **Context:** `pydantic-settings` loads configurations into memory, but LangChain/LangSmith SDKs strictly read from `os.environ` during initialization, causing tracing to silently fail.
 - **Decision:** Explicitly synchronize LangSmith variables from the Pydantic settings object back into `os.environ` at the application entry points (`run_integration.py` and `main.py`) before importing any LangChain modules.
+
+### 8. Anti-Spoiler Graph RAG Chat Engine
+
+- **Date:** 2026-07-18
+- **Context:** Users need a stateful chat interface that answers questions about the story based on knowledge extracted up to a specific chapter. Answers must not reveal future events or characters not yet discovered.
+- **Decision:** Implement a stateless POST endpoint `/api/v1/chat`. The request includes `book_stem`, `chapter_index`, and `messages`. The backend reads the corresponding `{book_stem}_chapter_{chapter_index}.json`, stringifies it, and injects it into the system prompt. The LLM is rigidly instructed to reject answering any question whose premise cannot be found in the injected JSON snapshot, thus preventing spoilers.

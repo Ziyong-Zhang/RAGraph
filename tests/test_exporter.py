@@ -1,3 +1,5 @@
+import uuid
+
 import networkx as nx
 
 from backend.core.exporter import export_to_cytoscape_json
@@ -33,5 +35,8 @@ def test_export_to_cytoscape_json():
     assert set(edge.keys()) == {"data"}
     assert set(node_poirot.keys()) == {"data"}
 
-    # Check unique edge ID format
-    assert edge["data"]["id"] == "Poirot_Hastings_0"
+    # Check edge ID is a valid UUID4 (no longer "Poirot_Hastings_0")
+    edge_id = edge["data"]["id"]
+    # A valid UUID4 matches this pattern
+    uuid_obj = uuid.UUID(edge_id)
+    assert uuid_obj.version == 4, f"Edge id '{edge_id}' is not UUID4"

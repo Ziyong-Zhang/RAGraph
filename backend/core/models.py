@@ -16,3 +16,18 @@ class Relationship(BaseModel):
 class GraphState(BaseModel):
     known_characters: list[Character] = []
     known_relationships: list[Relationship] = []
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    book_stem: str
+    chapter_index: int
+    messages: list[ChatMessage]
+
+
+class ChatResponse(BaseModel):
+    answer: str

@@ -5,7 +5,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.core.config import get_pipeline_config
+from backend.core.chat import generate_chat_response
+from backend.core.config import get_pipeline_config, get_settings
+from backend.core.models import ChatRequest, ChatResponse
 
 app = FastAPI(title="RAGraph")
 
@@ -110,3 +112,11 @@ def get_graph(
         data = json.load(f)
 
     return data
+
+
+@app.post("/api/v1/chat", response_model=ChatResponse)
+async def chat_endpoint(request: ChatRequest):
+    """Anti-spoiler chat: answers based only on the current chapter's graph."""
+    settings = get_settings()
+    answer = await generate_chat_response(request, settings.DEEPSEEK_API_KEY)
+    return ChatResponse(answer=answer)

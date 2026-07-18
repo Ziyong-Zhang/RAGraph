@@ -1,3 +1,6 @@
+import json
+import urllib.parse
+
 import streamlit as st
 import requests
 
@@ -34,9 +37,10 @@ st.session_state["selected_stem"] = selected_stem
 # ---- Chapter Timeline (only when a book is selected) ----
 chapter_indices = []
 if selected_stem:
+    safe_stem = urllib.parse.quote(selected_stem)
     try:
         resp_meta = requests.get(
-            f"http://localhost:8000/api/v1/graph/{selected_stem}/metadata",
+            f"http://localhost:8000/api/v1/graph/{safe_stem}/metadata",
             timeout=5,
         )
         if resp_meta.status_code == 200:
@@ -62,13 +66,15 @@ else:
 @st.cache_data
 def fetch_graph(book_stem: str, chapter_index: int | None) -> dict | None:
     """Fetch graph data from backend. Cached to avoid duplicate requests."""
-    base_url = f"http://localhost:8000/api/v1/graph/{book_stem}"
-    params = {"chapter_index": chapter_index} if chapter_index is not None else {}
+    safe_stem = urllib.parse.quote(book_stem)
+    base_url = f"http://localhost:8000/api/v1/graph/{safe_stem}"
     try:
-        resp = requests.get(base_url, params=params, timeout=10)
+        if chapter_index is not None:
+            resp = requests.get(base_url, params={"chapter_index": chapter_index}, timeout=10)
+        else:
+            resp = requests.get(base_url, timeout=10)
     except requests.exceptions.ConnectionError:
-        st.warning("Cannot connect to backend. Is the FastAPI server running on port 8000?")
-        st.stop()
+        st.error("Cannot connect to backend. Is the FastAPI server running on port 8000?")
         return None
 
     if resp.status_code == 404:
@@ -77,15 +83,18 @@ def fetch_graph(book_stem: str, chapter_index: int | None) -> dict | None:
             "`uv run python scripts/run_integration.py`\n\n"
             "Then reload this page."
         )
-        st.stop()
         return None
 
     if resp.status_code != 200:
         st.error(f"Backend returned status {resp.status_code}: {resp.text}")
-        st.stop()
         return None
 
-    return resp.json()
+    try:
+        data = resp.json()
+        return data
+    except requests.exceptions.JSONDecodeError as e:
+        st.error(f"Failed to parse JSON response: {e}")
+        return None
 
 
 # ---- Auto-update graph on slider change (no button needed) ----
@@ -108,7 +117,9 @@ elif not book_stem:
 
 # ---- Render Graph ----
 if "graph_data" in st.session_state and st.session_state["graph_data"]:
-    nodes_json = str(st.session_state["graph_data"]).replace("'", '"')
+    # Use json.dumps for safe JavaScript object literal injection
+    # This guarantees any apostrophe or special char is safely escaped
+    safe_json = json.dumps(st.session_state["graph_data"])
 
     cytoscape_html = f"""
     <!DOCTYPE html>
@@ -164,10 +175,10 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
         <div id="info-panel"></div>
         <div id="cy"></div>
         <script>
-            var elements = {nodes_json};
+            var graphData = {safe_json};
             var cy = cytoscape({{
                 container: document.getElementById('cy'),
-                elements: elements,
+                elements: graphData,
                 style: [
                     {{
                         selector: 'node',
@@ -183,11 +194,7 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
                             'width': 45,
                             'height': 45,
                             'border-width': 2,
-                            'border-color': '#2c5f8a',
-                            'shadow-blur': 8,
-                            'shadow-color': 'rgba(0,0,0,0.15)',
-                            'shadow-offset-x': 0,
-                            'shadow-offset-y': 2
+                            'border-color': '#2c5f8a'
                         }}
                     }},
                     {{
