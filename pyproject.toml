@@ -1,0 +1,29 @@
+[project]
+name = "ragraph"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "ebooklib>=0.20",
+    "fastapi>=0.139.0",
+    "instructor>=1.15.4",
+    "langchain-text-splitters>=1.1.2",
+    "langgraph>=1.2.9",
+    "langsmith>=0.10.1",
+    "networkx>=3.6.1",
+    "openai>=2.45.0",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.2",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0.3",
+    "streamlit>=1.59.1",
+    "uvicorn>=0.51.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]

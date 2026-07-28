@@ -1,0 +1,26 @@
+# RAGraph — Agent Operational Rules
+
+## CONTEXT HARNESSING
+
+At the start of ANY task, you MUST read `harness/project.md`, `harness/process.md`, and `harness/progress.md`.
+
+## STATE UPDATE
+
+Before completing ANY task, you MUST update `harness/progress.md` and check off completed items in `harness/process.md`.
+
+## DECISIONS
+
+Propose updates to `harness/decision.md` ONLY for major architectural changes, significant dependency shifts, or core logic definitions (e.g., Agent orchestration logic). Do NOT log minor bug fixes or routine code generation here.
+
+## Coding RULE
+- Configuration Rule: NEVER hardcode file paths, magic numbers, or business parameters in logic files. All hyperparameters must reside in config.yaml.
+
+- IO Rule: Scripts and pipelines must dynamically derive output filenames from input filenames using pathlib to prevent data overwriting.
+
+## LANGUAGE RULE
+
+ALL code, docstrings, inline comments, and commit messages MUST BE EXCLUSIVELY IN ENGLISH. NO EXCEPTIONS. NEVER USE CHINESE CHARACTERS IN CODE.
+
+## TESTING
+
+TDD is mandatory. Write minimal Pytest cases before implementation.
