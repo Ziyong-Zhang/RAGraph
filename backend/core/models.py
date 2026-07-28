@@ -31,3 +31,16 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+
+
+class NodeMergeRequest(BaseModel):
+    book_stem: str
+    chapter_index: int | None = None
+    source_id: str
+    target_id: str
+
+
+class EdgeDeleteRequest(BaseModel):
+    book_stem: str
+    chapter_index: int | None = None
+    edge_id: str

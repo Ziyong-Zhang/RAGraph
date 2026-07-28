@@ -304,6 +304,90 @@ if "graph_data" in st.session_state and st.session_state["graph_data"]:
 
     with st.expander("Show raw JSON data"):
         st.json(st.session_state["graph_data"])
+
+    # ---- HITL Knowledge Graph Editor ----
+    with st.expander("🛠️ Knowledge Graph Editor", expanded=False):
+        graph_data = st.session_state["graph_data"]
+        nodes_list = sorted(
+            n.get("data", {}).get("id", "") for n in graph_data.get("nodes", [])
+        )
+        edges_list = [
+            e.get("data", {}) for e in graph_data.get("edges", [])
+        ]
+
+        tab1, tab2 = st.tabs(["Merge Nodes", "Delete Edge"])
+
+        with tab1:
+            if len(nodes_list) < 2:
+                st.info("Need at least 2 nodes to merge.")
+            else:
+                source_id = st.selectbox(
+                    "Node to remove (Source)",
+                    options=nodes_list,
+                    key="merge_source",
+                )
+                target_options = [n for n in nodes_list if n != source_id]
+                target_id = st.selectbox(
+                    "Node to keep (Target)",
+                    options=target_options,
+                    key="merge_target",
+                )
+                if st.button("Merge Nodes", type="primary"):
+                    try:
+                        payload = {
+                            "book_stem": book_stem,
+                            "chapter_index": chapter,
+                            "source_id": source_id,
+                            "target_id": target_id,
+                        }
+                        resp = requests.post(
+                            "http://localhost:8000/api/v1/graph/node/merge",
+                            json=payload,
+                            timeout=10,
+                        )
+                        if resp.status_code == 200:
+                            fetch_graph.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Merge failed: {resp.json().get('detail', resp.text)}")
+                    except requests.exceptions.RequestException as e:
+                        st.error(f"Connection error: {e}")
+
+        with tab2:
+            if not edges_list:
+                st.info("No edges to delete.")
+            else:
+                edge_options = [
+                    f"{e.get('id', '?')}: {e.get('source', '?')} -> {e.get('target', '?')} ({e.get('nature', '?')})"
+                    for e in edges_list
+                ]
+                selected_edge_label = st.selectbox(
+                    "Select edge to delete",
+                    options=edge_options,
+                    key="delete_edge",
+                )
+                selected_edge_id = edges_list[edge_options.index(selected_edge_label)].get("id")
+
+                if st.button("Delete Edge", type="primary"):
+                    try:
+                        payload = {
+                            "book_stem": book_stem,
+                            "chapter_index": chapter,
+                            "edge_id": selected_edge_id,
+                        }
+                        resp = requests.post(
+                            "http://localhost:8000/api/v1/graph/edge/delete",
+                            json=payload,
+                            timeout=10,
+                        )
+                        if resp.status_code == 200:
+                            fetch_graph.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Delete failed: {resp.json().get('detail', resp.text)}")
+                    except requests.exceptions.RequestException as e:
+                        st.error(f"Connection error: {e}")
+
 else:
     st.info("Select a book stem in the sidebar and drag the chapter slider to visualize character relationships.")
 

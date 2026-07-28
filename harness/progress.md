@@ -51,6 +51,12 @@ Chapter-level timeline and dynamic graph snapshotting implemented. Ready for Ant
   - Error handling: `try...except requests.exceptions.RequestException` catches connection failures and displays `st.error()` — app remains responsive.
   - No LLM logic in frontend; purely a view layer delegating to FastAPI.
 
+- **LLM Prompt Hardening (Relationship Ontology):** Updated `backend/core/extractor.py` system prompt with 4 strict relationship extraction rules to reduce edge clutter:
+  - Rule 1 (State over Action): `nature` MUST describe structural/social/emotional status, NOT ephemeral events.
+  - Rule 2 (Forbidden Verbs): Strictly forbids "-ing" verb forms (e.g., "conversing", "observing") in the `nature` field.
+  - Rule 3 (Inference): LLM must use interactions as evidence to deduce the true relationship (e.g., "intimate conversation" → "Secret Lovers").
+  - Rule 4 (Conciseness): `nature` limited to 2-4 words; detailed context moved to character `description`.
+
 ## Next Action
 
-Human-in-the-loop correction endpoint and logic.
+Docker containerization and GCP Cloud Run deployment.

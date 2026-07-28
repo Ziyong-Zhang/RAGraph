@@ -49,3 +49,9 @@
 - **Date:** 2026-07-18
 - **Context:** Users need a stateful chat interface that answers questions about the story based on knowledge extracted up to a specific chapter. Answers must not reveal future events or characters not yet discovered.
 - **Decision:** Implement a stateless POST endpoint `/api/v1/chat`. The request includes `book_stem`, `chapter_index`, and `messages`. The backend reads the corresponding `{book_stem}_chapter_{chapter_index}.json`, stringifies it, and injects it into the system prompt. The LLM is rigidly instructed to reject answering any question whose premise cannot be found in the injected JSON snapshot, thus preventing spoilers.
+
+### 9. Native Streamlit HITL Editor vs. Iframe JS
+
+- **Date:** 2026-07-28
+- **Context:** Phase 5 requires enabling users to manually merge duplicate character nodes and delete hallucinated edges. The Cytoscape graph renders inside an isolated `<iframe>` via `st.components.v1.html`, making it nearly impossible to embed interactive HTML edit buttons that reliably communicate back to the Streamlit Python runtime.
+- **Decision:** Build the graph editor using native Streamlit widgets (expander, tabs, selectboxes, buttons) positioned below the graph visualization. This ensures reliable state synchronization via `st.rerun()`, strictly decouples the visualization container from mutation logic, and avoids complex cross-origin message passing. Backend endpoints directly modify the JSON files on disk, and the frontend re-fetches after each mutation.

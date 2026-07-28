@@ -12,7 +12,8 @@ get_settings()
 
 from backend.core.chat import generate_chat_response
 from backend.core.config import get_pipeline_config
-from backend.core.models import ChatRequest, ChatResponse
+from backend.core.editor import delete_edge_in_json, merge_nodes_in_json
+from backend.core.models import ChatRequest, ChatResponse, EdgeDeleteRequest, NodeMergeRequest
 
 app = FastAPI(title="RAGraph")
 
@@ -125,3 +126,21 @@ async def chat_endpoint(request: ChatRequest):
     settings = get_settings()
     answer = await generate_chat_response(request, settings.DEEPSEEK_API_KEY)
     return ChatResponse(answer=answer)
+
+
+@app.post("/api/v1/graph/node/merge")
+def merge_nodes_endpoint(request: NodeMergeRequest):
+    """HITL: Merge source character node into target character node."""
+    result = merge_nodes_in_json(request)
+    if result["status"] == "error":
+        raise HTTPException(status_code=404, detail=result.get("detail", "Merge failed"))
+    return result
+
+
+@app.post("/api/v1/graph/edge/delete")
+def delete_edge_endpoint(request: EdgeDeleteRequest):
+    """HITL: Delete a hallucinated edge by its ID."""
+    result = delete_edge_in_json(request)
+    if result["status"] == "error":
+        raise HTTPException(status_code=404, detail=result.get("detail", "Delete failed"))
+    return result
